@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @Date May 10, 2020
  * @Email churongzhang1997@gmail.com
  */
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import com.crz.app.ws.service.UserService;
@@ -29,7 +30,7 @@ public class UserController {
 	UserService userService;
 	
 	
-	@GetMapping(path="/{id}")
+	@GetMapping(path="/{id}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public UserRest getUser(@PathVariable String id)
 	{
 		UserRest returnValue = new UserRest();
@@ -38,7 +39,8 @@ public class UserController {
 		return returnValue;
 	}
 
-	@PostMapping
+	@PostMapping(consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE },
+				produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public UserRest createUser(@RequestBody UserDetailsRequestModel userDetails)
 	{
 		// 

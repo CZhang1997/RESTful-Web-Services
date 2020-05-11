@@ -29,10 +29,13 @@ public class UserController {
 	UserService userService;
 	
 	
-	@GetMapping
-	public String getUser()
+	@GetMapping(path="/{id}")
+	public UserRest getUser(@PathVariable String id)
 	{
-		return "get user was called";
+		UserRest returnValue = new UserRest();
+		UserDto userDto = userService.getUserByUerId(id);
+		BeanUtils.copyProperties(userDto, returnValue);
+		return returnValue;
 	}
 
 	@PostMapping

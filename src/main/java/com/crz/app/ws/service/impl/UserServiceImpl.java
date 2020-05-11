@@ -2,6 +2,7 @@ package com.crz.app.ws.service.impl;
 
 import java.util.ArrayList;
 
+import ch.qos.logback.classic.jmx.MBeanUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
@@ -61,6 +62,16 @@ public class UserServiceImpl implements UserService {
 		if(userEntity == null)
 			throw new UsernameNotFoundException(email);
 		return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(), new ArrayList<>());
+	}
+
+	@Override
+	public UserDto getUserByUerId(String userId) {
+		UserEntity userEntity = userRepository.findByUserId(userId);
+		UserDto returnValue = new UserDto();
+		if(userEntity == null)
+			throw new UsernameNotFoundException(userId);
+		BeanUtils.copyProperties(userEntity, returnValue);
+		return returnValue;
 	}
 
 	@Override

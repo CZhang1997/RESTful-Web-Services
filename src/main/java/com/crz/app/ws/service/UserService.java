@@ -13,6 +13,8 @@ import com.crz.app.ws.shared.dto.UserDto;
 public interface UserService extends UserDetailsService{
 
 	UserDto createUser(UserDto user);
+	UserDto getUserByUerId(String id);
+
 	UserDto getUser(String email);
 	void deleteUser(String email);
 	

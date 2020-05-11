@@ -57,10 +57,9 @@ public class UserController {
 	}
 	
 	@DeleteMapping
-	public String deleteUser(@RequestBody String email)
+	public String deleteUser(@RequestBody UserDetailsRequestModel userDetails)
 	{
-		System.out.println(email);
-		userService.deleteUser(email);
-		return "delete";
+		userService.deleteUser(userDetails.getEmail());
+		return "deleted";
 	}
 }

@@ -1,4 +1,6 @@
 package com.crz.app.ws.ui.controller;
+import com.crz.app.ws.exceptions.UserServiceException;
+import com.crz.app.ws.ui.model.response.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 /**
@@ -12,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import com.crz.app.ws.service.UserService;
 import com.crz.app.ws.shared.dto.UserDto;
 import com.crz.app.ws.ui.model.request.UserDetailsRequestModel;
-import com.crz.app.ws.ui.model.response.UserRest;
 
 /**
  * @author Churong Zhang
@@ -41,11 +42,11 @@ public class UserController {
 
 	@PostMapping(consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE },
 				produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
-	public UserRest createUser(@RequestBody UserDetailsRequestModel userDetails)
+	public UserRest createUser(@RequestBody UserDetailsRequestModel userDetails) throws Exception
 	{
-		// 
 		UserRest returnValue = new UserRest();
-		
+		if(userDetails.getFirstName().isEmpty())
+			throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
 		UserDto userDto = new UserDto();
 		BeanUtils.copyProperties(userDetails, userDto);
 		
@@ -55,16 +56,29 @@ public class UserController {
 		return returnValue;
 	}
 	
-	@PutMapping
-	public String updateUser()
+	@PutMapping(path="/{id}", consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE },
+			produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	public UserRest updateUser(@PathVariable String id, @RequestBody UserDetailsRequestModel userDetails)
 	{
-		return "update";
+		UserRest returnValue = new UserRest();
+		if(userDetails.getFirstName().isEmpty())
+			throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
+		UserDto userDto = new UserDto();
+		BeanUtils.copyProperties(userDetails, userDto);
+
+		UserDto updateUser = userService.updateUser(id, userDto);
+		BeanUtils.copyProperties(updateUser, returnValue);
+
+		return returnValue;
 	}
 	
-	@DeleteMapping
-	public String deleteUser(@RequestBody UserDetailsRequestModel userDetails)
+	@DeleteMapping(path="/{id}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	public OperationStatusModel deleteUser(@PathVariable String id)
 	{
-		userService.deleteUser(userDetails.getEmail());
-		return "deleted";
+		OperationStatusModel returnValue = new OperationStatusModel();
+		userService.deleteUser(id);
+		returnValue.setOperationName(RequestOperationName.DELETE.name());
+		returnValue.setOperationResult(RequestOperationStatus.SUCCESS.name());
+		return returnValue;
 	}
 }

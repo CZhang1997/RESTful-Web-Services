@@ -3,6 +3,8 @@ package com.crz.app.ws.service.impl;
 import java.util.ArrayList;
 
 import ch.qos.logback.classic.jmx.MBeanUtil;
+import com.crz.app.ws.ui.model.response.ErrorMessage;
+import com.crz.app.ws.ui.model.response.ErrorMessages;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
@@ -60,7 +62,7 @@ public class UserServiceImpl implements UserService {
 
 		UserEntity userEntity = userRepository.findByEmail(email);
 		if(userEntity == null)
-			throw new UsernameNotFoundException(email);
+			throw new UsernameNotFoundException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage() + " for the email " + email);
 		return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(), new ArrayList<>());
 	}
 
@@ -69,12 +71,28 @@ public class UserServiceImpl implements UserService {
 		UserEntity userEntity = userRepository.findByUserId(userId);
 		UserDto returnValue = new UserDto();
 		if(userEntity == null)
-			throw new UsernameNotFoundException(userId);
+			throw new UsernameNotFoundException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage() + " for the id " + userId);
 		BeanUtils.copyProperties(userEntity, returnValue);
 		return returnValue;
 	}
 
-	@Override
+    @Override
+    public UserDto updateUser(String userId, UserDto userDto) {
+        UserEntity userEntity = userRepository.findByUserId(userId);
+        UserDto returnValue = new UserDto();
+        if(userEntity == null)
+            throw new UsernameNotFoundException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+
+        if(userDto.getFirstName() != null && !userDto.getFirstName().isEmpty())
+            userEntity.setFirstName(userDto.getFirstName());
+        if(userDto.getLastName() != null && !userDto.getLastName().isEmpty())
+            userEntity.setLastName(userDto.getLastName());
+        UserEntity updatedUserEntity = userRepository.save(userEntity);
+        BeanUtils.copyProperties(updatedUserEntity, returnValue);
+        return returnValue;
+    }
+
+    @Override
 	public UserDto getUser(String email) {
 
 		UserEntity userEntity = userRepository.findByEmail(email);
@@ -84,10 +102,15 @@ public class UserServiceImpl implements UserService {
 		BeanUtils.copyProperties(userEntity, returnValue);
 		return returnValue;
 	}
-	
+
+
 	@Override
-	public void deleteUser(String email) {
-		userRepository.delete(userRepository.findByEmail(email));
+	public void deleteUser(String userId) {
+		UserEntity userEntity = userRepository.findByUserId(userId);
+		if(userEntity == null)
+			throw new UsernameNotFoundException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+		userRepository.delete(userEntity);
+
 	}
 	
 	

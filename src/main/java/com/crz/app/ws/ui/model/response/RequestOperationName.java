@@ -8,5 +8,8 @@ package com.crz.app.ws.ui.model.response;
 
 public enum RequestOperationName {
 
-    DELETE
+    GET_USER_INFORMATION,
+    CREATE_USER_INFORMATION,
+    UPDATE_USER_INFORMATEION,
+    DELETE_USER_iNFORMATION
 }

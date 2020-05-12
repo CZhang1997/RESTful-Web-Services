@@ -32,43 +32,51 @@ public class UserController {
 	
 	
 	@GetMapping(path="/{id}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
-	public UserRest getUser(@PathVariable String id)
+	public OperationStatusModel getUser(@PathVariable String id)
 	{
-		UserRest returnValue = new UserRest();
+
+		UserRest userRest = new UserRest();
 		UserDto userDto = userService.getUserByUerId(id);
-		BeanUtils.copyProperties(userDto, returnValue);
+		BeanUtils.copyProperties(userDto, userRest);
+		OperationStatusModel returnValue = new OperationStatusModel();
+		returnValue.setOperationName(RequestOperationName.GET_USER_INFORMATION.name());
+		returnValue.setUserRest(userRest);
 		return returnValue;
 	}
 
 	@PostMapping(consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE },
 				produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
-	public UserRest createUser(@RequestBody UserDetailsRequestModel userDetails) throws Exception
+	public OperationStatusModel createUser(@RequestBody UserDetailsRequestModel userDetails) throws Exception
 	{
-		UserRest returnValue = new UserRest();
+		UserRest userRest = new UserRest();
 		if(userDetails.getFirstName().isEmpty())
 			throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
 		UserDto userDto = new UserDto();
 		BeanUtils.copyProperties(userDetails, userDto);
-		
 		UserDto createUser = userService.createUser(userDto);
-		BeanUtils.copyProperties(createUser, returnValue);
-		
+		BeanUtils.copyProperties(createUser, userRest);
+
+		OperationStatusModel returnValue = new OperationStatusModel();
+		returnValue.setOperationName(RequestOperationName.CREATE_USER_INFORMATION.name());
+		returnValue.setUserRest(userRest);
 		return returnValue;
 	}
 	
 	@PutMapping(path="/{id}", consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE },
 			produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
-	public UserRest updateUser(@PathVariable String id, @RequestBody UserDetailsRequestModel userDetails)
+	public OperationStatusModel updateUser(@PathVariable String id, @RequestBody UserDetailsRequestModel userDetails)
 	{
-		UserRest returnValue = new UserRest();
-		if(userDetails.getFirstName().isEmpty())
+		UserRest userRest = new UserRest();
+		if(userDetails.getFirstName() == null || userDetails.getFirstName().isEmpty() || userDetails.getLastName() == null || userDetails.getLastName().isEmpty())
 			throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
 		UserDto userDto = new UserDto();
 		BeanUtils.copyProperties(userDetails, userDto);
-
 		UserDto updateUser = userService.updateUser(id, userDto);
-		BeanUtils.copyProperties(updateUser, returnValue);
+		BeanUtils.copyProperties(updateUser, userRest);
 
+		OperationStatusModel returnValue = new OperationStatusModel();
+		returnValue.setOperationName(RequestOperationName.UPDATE_USER_INFORMATEION.name());
+		returnValue.setUserRest(userRest);
 		return returnValue;
 	}
 	
@@ -77,8 +85,7 @@ public class UserController {
 	{
 		OperationStatusModel returnValue = new OperationStatusModel();
 		userService.deleteUser(id);
-		returnValue.setOperationName(RequestOperationName.DELETE.name());
-		returnValue.setOperationResult(RequestOperationStatus.SUCCESS.name());
+		returnValue.setOperationName(RequestOperationName.DELETE_USER_iNFORMATION.name());
 		return returnValue;
 	}
 }

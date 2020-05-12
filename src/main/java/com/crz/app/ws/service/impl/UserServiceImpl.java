@@ -1,12 +1,16 @@
 package com.crz.app.ws.service.impl;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import ch.qos.logback.classic.jmx.MBeanUtil;
 import com.crz.app.ws.ui.model.response.ErrorMessage;
 import com.crz.app.ws.ui.model.response.ErrorMessages;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -100,6 +104,23 @@ public class UserServiceImpl implements UserService {
 			throw new UsernameNotFoundException(email);
 		UserDto returnValue = new UserDto();
 		BeanUtils.copyProperties(userEntity, returnValue);
+		return returnValue;
+	}
+
+	@Override
+	public List<UserDto> getUsers(int page, int limit) {
+		List<UserDto> returnValue = new ArrayList<>();
+		if(page > 0)
+			page --;
+		Pageable pageableRequest = PageRequest.of(page, limit);
+		Page<UserEntity> usersPage = userRepository.findAll(pageableRequest);
+		List<UserEntity> users = usersPage.getContent();
+		for(UserEntity entity: users)
+		{
+			UserDto dto = new UserDto();
+			BeanUtils.copyProperties(entity, dto);
+			returnValue.add(dto);
+		}
 		return returnValue;
 	}
 

@@ -1,5 +1,6 @@
 package com.crz.app.ws.ui.controller;
 import com.crz.app.ws.exceptions.UserServiceException;
+import com.crz.app.ws.io.entity.UserEntity;
 import com.crz.app.ws.ui.model.response.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,9 @@ import org.springframework.web.bind.annotation.*;
 import com.crz.app.ws.service.UserService;
 import com.crz.app.ws.shared.dto.UserDto;
 import com.crz.app.ws.ui.model.request.UserDetailsRequestModel;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Churong Zhang
@@ -86,6 +90,20 @@ public class UserController {
 		OperationStatusModel returnValue = new OperationStatusModel();
 		userService.deleteUser(id);
 		returnValue.setOperationName(RequestOperationName.DELETE_USER_iNFORMATION.name());
+		return returnValue;
+	}
+
+	@GetMapping(produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	public List<UserRest> getUsers(@RequestParam(value = "page", defaultValue = "0") int page, @RequestParam(value = "limit", defaultValue = "25") int limit)
+	{
+		List<UserRest> returnValue = new ArrayList<>();
+		List<UserDto> users = userService.getUsers(page, limit);
+		for(UserDto dto: users)
+		{
+			UserRest rest = new UserRest();
+			BeanUtils.copyProperties(dto, rest);
+			returnValue.add(rest);
+		}
 		return returnValue;
 	}
 }

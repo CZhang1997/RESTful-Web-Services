@@ -4,6 +4,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 
 import com.crz.app.ws.shared.dto.UserDto;
 
+import java.util.List;
+
 /**
  * @author Churong Zhang
  * @Date May 10, 2020
@@ -16,6 +18,7 @@ public interface UserService extends UserDetailsService{
 	UserDto getUserByUerId(String id);
 	UserDto updateUser(String userId, UserDto userDto);
 	UserDto getUser(String email);
+	List<UserDto> getUsers(int page, int limit);
 	void deleteUser(String userId);
 	
 }
